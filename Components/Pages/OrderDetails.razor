@@ -1,0 +1,62 @@
+﻿@page "/orderdetails/{OrderId:int}"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject OrderService OrderService
+
+<h3>Order Details</h3>
+
+@if (order != null)
+{
+    <p>
+        <strong>Order ID:</strong> @order.OrderId
+    </p>
+
+    <p>
+        <strong>Status:</strong> @order.Status
+    </p>
+
+    <p>
+        <strong>Total:</strong> £@order.TotalAmount
+    </p>
+
+    <table class="table table-bordered">
+
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in order.OrderItems!)
+            {
+                <tr>
+                    <td>@item.Product?.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>£@item.Price</td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+
+@code {
+
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private Order? order;
+
+    protected override async Task OnInitializedAsync()
+    {
+        order = await OrderService.GetOrderById(OrderId);
+    }
+}

@@ -1,0 +1,128 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+
+@page "/categories"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject CategoryService CategoryService
+
+
+
+<h3>Categories</h3>
+
+<input @bind="newCategory.Name"
+       placeholder="Category Name"
+       class="form-control" />
+
+<br />
+
+<input @bind="newCategory.Description"
+       placeholder="Description"
+       class="form-control" />
+
+<br />
+
+<button @onclick="AddCategory"
+        class="btn btn-primary">
+    @(isEditing ? "Update Category" : "Add Category")
+</button>
+
+<hr />
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+   
+    <tbody>
+        @foreach (var category in categories)
+        {
+            <tr>
+                <td>@category.CategoryId</td>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
+                <td>@category.CreatedDate.ToShortDateString()</td>
+
+                <td>
+                    <button class="btn btn-warning btn-sm"
+                            @onclick="() => EditCategory(category)">
+                        Edit
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            @onclick="() => DeleteCategory(category.CategoryId)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+    
+
+</table>
+
+@code {
+
+
+private List<Category> categories = new();
+
+    private Category newCategory = new();
+
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetAllCategories();
+    }
+
+    private async Task AddCategory()
+    {
+        if (isEditing)
+        {
+            await CategoryService.UpdateCategory(newCategory);
+
+            isEditing = false;
+        }
+        else
+        {
+            await CategoryService.AddCategory(newCategory);
+        }
+
+        newCategory = new Category();
+
+        categories = await CategoryService.GetAllCategories();
+    }
+
+    private void EditCategory(Category category)
+    {
+        newCategory = new Category
+        {
+            CategoryId = category.CategoryId,
+            Name = category.Name,
+            Description = category.Description,
+            CreatedDate = category.CreatedDate
+        };
+
+        isEditing = true;
+    }
+
+    private async Task DeleteCategory(int id)
+    {
+        await CategoryService.DeleteCategory(id);
+
+        categories = await CategoryService.GetAllCategories();
+    }
+
+
+}

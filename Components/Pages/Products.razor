@@ -1,0 +1,72 @@
+﻿@page "/products"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject ProductService ProductService
+@inject CartService CartService
+
+<h3>Our Products</h3>
+
+<div class="row">
+
+    
+    @foreach (var product in products)
+    {
+        <div class="col-md-4 mb-3">
+
+            <div class="card">
+
+                <div class="card-body">
+
+                    <h5>@product.Name</h5>
+
+                    <p>@product.Description</p>
+
+                    <p>
+                        <strong>£@product.Price</strong>
+                    </p>
+
+                    <p>
+                        Category:
+                        @product.Category?.Name
+                    </p>
+
+                    <a href="/productdetails/@product.ProductId"
+                       class="btn btn-primary btn-sm">
+                        View Details
+                    </a>
+
+                    <button class="btn btn-success ms-2"
+                            @onclick="() => AddToCart(product.ProductId)">
+                        Add To Cart
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+   
+
+</div>
+
+@code
+{
+    private List<Product> products = new();
+
+protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetAllProducts();
+    }
+
+    private async Task AddToCart(int productId)
+    {
+        await CartService.AddToCart(
+            "TEST_USER",
+            productId);
+    }
+
+}

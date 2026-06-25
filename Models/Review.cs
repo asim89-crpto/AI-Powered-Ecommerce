@@ -1,0 +1,19 @@
+﻿namespace AIPoweredEcommerce.Models
+{
+    public class Review
+    {
+        public int ReviewId { get; set; }
+
+        public int ProductId { get; set; }
+
+        public string UserId { get; set; } = string.Empty;
+
+        public int Rating { get; set; }
+
+        public string Comment { get; set; } = string.Empty;
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public Product? Product { get; set; }
+    }
+}

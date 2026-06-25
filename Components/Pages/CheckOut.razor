@@ -1,0 +1,41 @@
+﻿
+
+
+@page "/checkout"
+@rendermode InteractiveServer
+
+@using AI_PoweredEcommerce.Services
+
+@inject OrderService OrderService
+
+
+
+<h3>Checkout</h3>
+
+<div class="alert alert-success">
+    Order Ready For Processing
+</div>
+
+<button class="btn btn-primary"
+        @onclick="PlaceOrder">
+    Place Order
+</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-3">
+        @message
+    </div>
+}
+
+@code
+{
+    private string message = "";
+
+    private async Task PlaceOrder()
+    {
+        await OrderService.PlaceOrder("TEST_USER");
+
+        message = "✅ Order placed successfully!";
+    }
+}

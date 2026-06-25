@@ -1,0 +1,146 @@
+﻿@page "/productdetails/{ProductId:int}"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject ProductService ProductService
+@inject CartService CartService
+
+@if (product != null)
+{
+    <div class="card">
+
+        
+        <div class="card-body">
+
+            <h2>@product.Name</h2>
+
+            <p>@product.Description</p>
+
+            <h4>£@product.Price</h4>
+
+            <p>
+                Category:
+                @product.Category?.Name
+            </p>
+
+            <button class="btn btn-success"
+                    @onclick="AddToCart">
+                Add To Cart
+            </button>
+
+        </div>
+
+    </div>
+
+    <hr />
+
+    <h3>Recommended Products</h3>
+
+    <div class="row">
+
+        @foreach (var item in recommendedProducts)
+        {
+            <div class="col-md-3">
+
+                <div class="card mb-3">
+
+                    <div class="card-body">
+
+                        <h5>@item.Name</h5>
+
+                        <p>£@item.Price</p>
+
+                        <a href="/productdetails/@item.ProductId"
+                           class="btn btn-primary btn-sm">
+                            View
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <hr />
+
+    <h3>Customers Also Bought</h3>
+
+    <div class="row">
+
+        @foreach (var item in customersAlsoBought)
+        {
+            <div class="col-md-3">
+
+                <div class="card mb-3">
+
+                    <div class="card-body">
+
+                        <h5>@item.Name</h5>
+
+                        <p>£@item.Price</p>
+
+                        <a href="/productdetails/@item.ProductId"
+                           class="btn btn-outline-primary btn-sm">
+                            View
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+
+}
+
+@code
+{
+    [Parameter]
+    public int ProductId { get; set; }
+
+private Product? product;
+
+    private List<Product> recommendedProducts = new();
+
+    private List<Product> customersAlsoBought = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetProductById(ProductId);
+
+        if (product != null)
+        {
+            recommendedProducts =
+                await ProductService.GetRecommendedProducts(
+                    product.CategoryId);
+
+            recommendedProducts =
+                recommendedProducts
+                .Where(p => p.ProductId != ProductId)
+                .ToList();
+
+            customersAlsoBought =
+                await ProductService.GetCustomersAlsoBought(
+                    ProductId);
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        if (product != null)
+        {
+            await CartService.AddToCart(
+                "TEST_USER",
+                product.ProductId);
+        }
+    }
+
+}

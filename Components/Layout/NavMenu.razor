@@ -1,0 +1,175 @@
+﻿@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark bg-dark shadow">
+
+    <div class="container-fluid">
+
+        <a class="navbar-brand fw-bold text-warning" href="">
+            🛒 AI Powered Ecommerce
+        </a>
+
+    </div>
+
+</div>
+
+<input type="checkbox"
+       title="Navigation menu"
+       class="navbar-toggler" />
+
+<div class="nav-scrollable"
+     onclick="document.querySelector('.navbar-toggler').click()">
+
+    <nav class="nav flex-column">
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                🏠 Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/products">
+                🛍 Products
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/cart">
+                🛒 Cart
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/myorders">
+                📦 My Orders
+            </NavLink>
+        </div>
+
+        <AuthorizeView Roles="Admin">
+
+            <Authorized>
+
+                <hr />
+
+                <div class="px-3 text-warning fw-bold">
+                    ADMIN PANEL
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link"
+                             href="/categories">
+                        📂 Categories
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link"
+                             href="/admin/products">
+                        📦 Products
+                    </NavLink>
+                </div>
+
+            </Authorized>
+
+        </AuthorizeView>
+
+        <hr />
+
+        <AuthorizeView>
+
+            <Authorized>
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="Account/Manage">
+
+                        👤 @context.User.Identity?.Name
+
+                    </NavLink>
+
+                </div>
+
+                <div class="nav-item px-3">
+
+                    <form action="Account/Logout"
+                          method="post">
+
+                        <AntiforgeryToken />
+
+                        <input type="hidden"
+                               name="ReturnUrl"
+                               value="@currentUrl" />
+
+                        <button type="submit"
+                                class="nav-link btn btn-link">
+
+                            🚪 Logout
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </Authorized>
+
+            <NotAuthorized>
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="Account/Login">
+
+                        🔑 Login
+
+                    </NavLink>
+
+                </div>
+
+                <div class="nav-item px-3">
+
+                    <NavLink class="nav-link"
+                             href="Account/Register">
+
+                        📝 Register
+
+                    </NavLink>
+
+                </div>
+
+            </NotAuthorized>
+
+        </AuthorizeView>
+
+    </nav>
+
+</div>
+
+@code
+{
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender,
+        LocationChangedEventArgs e)
+    {
+        currentUrl =
+            NavigationManager.ToBaseRelativePath(e.Location);
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

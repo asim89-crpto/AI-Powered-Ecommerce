@@ -1,0 +1,166 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+@page "/admin/products"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject ProductService ProductService
+@inject CategoryService CategoryService
+
+<h3>Products</h3>
+
+<input @bind="newProduct.Name"
+       placeholder="Product Name"
+       class="form-control" />
+
+<br />
+
+<input @bind="newProduct.Description"
+       placeholder="Description"
+       class="form-control" />
+
+<br />
+
+<input @bind="newProduct.Price"
+       placeholder="Price"
+       class="form-control" />
+
+<br />
+
+<input @bind="newProduct.Stock"
+       placeholder="Stock"
+       class="form-control" />
+
+<br />
+
+<select @bind="newProduct.CategoryId"
+        class="form-control">
+
+    
+    <option value="0">Select Category</option>
+
+    @foreach (var category in categories)
+    {
+        <option value="@category.CategoryId">
+            @category.Name
+        </option>
+    }
+    ```
+
+</select>
+
+<br />
+
+<button @onclick="AddProduct"
+        class="btn btn-primary">
+    @(isEditing ? "Update Product" : "Add Product")
+</button>
+
+<hr />
+
+<h4>Product List</h4>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    ```
+    <tbody>
+        @foreach (var product in products)
+        {
+            <tr>
+                <td>@product.ProductId</td>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>@product.Stock</td>
+                <td>@product.Category?.Name</td>
+
+                <td>
+                    <button class="btn btn-warning btn-sm"
+                            @onclick="() => EditProduct(product)">
+                        Edit
+                    </button>
+
+                    <button class="btn btn-danger btn-sm"
+                            @onclick="() => DeleteProduct(product.ProductId)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+ 
+
+</table>
+
+@code {
+
+private Product newProduct = new();
+
+    private List<Product> products = new();
+
+    private List<Category> categories = new();
+
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetAllCategories();
+
+        products = await ProductService.GetAllProducts();
+    }
+
+    private async Task AddProduct()
+    {
+        if (isEditing)
+        {
+            await ProductService.UpdateProduct(newProduct);
+
+            isEditing = false;
+        }
+        else
+        {
+            await ProductService.AddProduct(newProduct);
+        }
+
+        newProduct = new Product();
+
+        products = await ProductService.GetAllProducts();
+    }
+
+    private void EditProduct(Product product)
+    {
+        newProduct = new Product
+        {
+            ProductId = product.ProductId,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            CategoryId = product.CategoryId,
+            ImageUrl = product.ImageUrl
+        };
+
+        isEditing = true;
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        await ProductService.DeleteProduct(id);
+
+        products = await ProductService.GetAllProducts();
+    }
+
+
+}

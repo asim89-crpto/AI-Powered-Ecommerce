@@ -1,0 +1,54 @@
+﻿@page "/myorders"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject OrderService OrderService
+
+<h3>My Orders</h3>
+
+<table class="table table-bordered table-striped">
+
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var order in orders)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
+                <td>£@order.TotalAmount</td>
+                <td>@order.Status</td>
+
+                <td>
+                    <a href="/orderdetails/@order.OrderId"
+                       class="btn btn-primary btn-sm">
+                        View Details
+                    </a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+@code
+{
+    private List<Order> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await OrderService.GetOrders("TEST_USER");
+    }
+}

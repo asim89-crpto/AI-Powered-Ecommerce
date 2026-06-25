@@ -1,0 +1,73 @@
+﻿@page "/cart"
+@rendermode InteractiveServer
+
+@using AIPoweredEcommerce.Models
+@using AI_PoweredEcommerce.Services
+
+@inject CartService CartService
+
+@inject NavigationManager Navigation
+
+<h3>Shopping Cart</h3>
+
+<table class="table table-bordered">
+
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+
+
+
+    <tbody>
+
+        @foreach (var item in cartItems)
+        {
+            <tr>
+                <td>@item.Product?.Name</td>
+
+                <td>£@item.Product?.Price</td>
+
+                <td>@item.Quantity</td>
+
+                <td>
+                    £@(item.Quantity * item.Product!.Price)
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+
+
+<h4>
+    Grand Total:
+    £@cartItems.Sum(x => x.Quantity * x.Product!.Price)
+</h4>
+
+<button class="btn btn-success"
+        @onclick="Checkout">
+    Checkout
+</button>
+
+@code {
+
+    private List<CartItem> cartItems = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems =
+            await CartService.GetCartItems("TEST_USER");
+    }
+
+    private void Checkout()
+    {
+        Navigation.NavigateTo("/checkout");
+    }
+}
