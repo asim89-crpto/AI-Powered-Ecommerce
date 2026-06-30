@@ -63,7 +63,7 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();
@@ -77,12 +77,13 @@ app.MapAdditionalIdentityEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
-
-
     var services = scope.ServiceProvider;
 
+    var context = services.GetRequiredService<ApplicationDbContext>();
+
+    await context.Database.MigrateAsync();
 
     await SeedData.InitializeAsync(services);
 }
 
-    app.Run();
+app.Run();

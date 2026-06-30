@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -24,6 +24,14 @@
     <Folder Include="DTOs\" />
     <Folder Include="Repositories\" />
     <Folder Include="wwwroot\Images\Products\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\User\source\repos\AI-PoweredEcommerce\AI-PoweredEcommerce\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\User\source\repos\AI-PoweredEcommerce\AI-PoweredEcommerce\.editorconfig" />
   </ItemGroup>
 
 </Project>

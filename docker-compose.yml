@@ -1,0 +1,39 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+
+    container_name: sqlserver
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Pass123"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  ecommerce:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: ai-powered-ecommerce:1.0
+
+    container_name: ai-powered-ecommerce
+
+    depends_on:
+      - sqlserver
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+    restart: unless-stopped
+
+volumes:
+  sql_data:
