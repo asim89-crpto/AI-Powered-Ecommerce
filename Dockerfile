@@ -4,9 +4,11 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore "AI-PoweredEcommerce/AI-PoweredEcommerce.csproj"
+RUN dotnet restore "AI-PoweredEcommerce.csproj"
 
-RUN dotnet publish "AI-PoweredEcommerce/AI-PoweredEcommerce.csproj" -c Release -o /app/publish
+RUN dotnet publish "AI-PoweredEcommerce.csproj" \
+    -c Release \
+    -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
 
