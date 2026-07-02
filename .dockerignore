@@ -1,10 +1,16 @@
 **/bin
 **/obj
-
-.vs
-.git
+**/.vs
+**/.git
 
 .gitignore
 README.md
-Dockerfile*
-docker-compose*
+
+bin/
+obj/
+publish/
+
+.git
+.vs
+
+.gitHub
