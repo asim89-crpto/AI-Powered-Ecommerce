@@ -78,12 +78,37 @@ app.MapAdditionalIdentityEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     var context = services.GetRequiredService<ApplicationDbContext>();
 
-    await context.Database.MigrateAsync();
+    var retries = 10;
 
-    await SeedData.InitializeAsync(services);
+    while (retries > 0)
+    {
+        try
+        {
+            Console.WriteLine("Attempting database migration...");
+
+            await context.Database.MigrateAsync();
+
+            await SeedData.InitializeAsync(services);
+
+            Console.WriteLine("Database migration successful.");
+
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+
+            Console.WriteLine($"Database not ready. Retries left: {retries}");
+            Console.WriteLine(ex.Message);
+
+            if (retries == 0)
+                throw;
+
+            await Task.Delay(5000);
+        }
+    }
 }
 
 app.Run();
