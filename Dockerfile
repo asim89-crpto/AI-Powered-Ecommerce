@@ -1,23 +1,51 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+name: AI Ecommerce CI/CD
 
-WORKDIR /src
+on:
+  push:
+    branches:
+      - main
 
-COPY . .
+  pull_request:
+    branches:
+      - main
 
-RUN dotnet restore "AI-PoweredEcommerce.csproj"
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-RUN dotnet publish "AI-PoweredEcommerce.csproj" \
-    -c Release \
-    -o /app/publish
+    steps:
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-WORKDIR /app
+      - name: Setup .NET 10 Preview
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
 
-COPY --from=build /app/publish .
+      - name: Restore Packages
+        run: dotnet restore AI-PoweredEcommerce.csproj
 
-EXPOSE 8080
+      - name: Build Project
+        run: dotnet build AI-PoweredEcommerce.csproj --configuration Release --no-restore
 
-ENV ASPNETCORE_URLS=http://+:8080
+      - name: Publish Project
+        run: dotnet publish AI-PoweredEcommerce.csproj -c Release -o publish --no-build
 
-ENTRYPOINT ["dotnet","AI-PoweredEcommerce.dll"]
+      - name: Build Docker Image
+        run: docker build -t ai-powered-ecommerce .
+
+      - name: Deploy to EC2
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            cd ~/AI-Powered-Ecommerce
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
