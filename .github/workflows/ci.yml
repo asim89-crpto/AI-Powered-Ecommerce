@@ -1,4 +1,4 @@
-name: AI Ecommerce CI
+name: AI Ecommerce CI/CD
 
 on:
   push:
@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -35,3 +34,17 @@ jobs:
 
       - name: Build Docker Image
         run: docker build -t ai-powered-ecommerce .
+
+      - name: Deploy to EC2
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            cd ~/AI-Powered-Ecommerce
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
